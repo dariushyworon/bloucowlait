@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       await resend.emails.send({
         from: `Bloucowlait 🐄 <${fromEmail}>`,
         to: customerEmail,
-        subject: '🐄 Your Bloucowlait order is confirmed!',
+        subject: `🐄 Your Bloucowlait order is confirmed! (${orderNumber})`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="text-align: center; background: linear-gradient(135deg, #bae6fd, #dbeafe); padding: 30px; border-radius: 20px; margin-bottom: 24px;">
@@ -50,6 +50,7 @@ export async function POST(req: NextRequest) {
             <p style="color: #374151; font-size: 16px;">We are SO excited to make your order! Bea &amp; Louisa will get started right away. 🐄💛</p>
             <div style="background: #f0f9ff; border-radius: 12px; padding: 20px; margin: 20px 0;">
               <h2 style="color: #0c4a6e; margin-top: 0;">Order summary</h2>
+              <p style="color: #374151;"><strong>Order number:</strong> <span style="font-family: monospace; font-weight: bold; font-size: 18px; color: #0c4a6e;">${orderNumber}</span></p>
               <p style="color: #374151;"><strong>Total:</strong> US$${amountTotal}</p>
               <p style="color: #374151;"><strong>Shipping to:</strong> ${address}</p>
             </div>
@@ -67,12 +68,14 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: `Bloucowlait 🐄 <${fromEmail}>`,
       to: sellerEmail,
-      subject: `🎉 New Bloucowlait order from ${customerName} — US$${amountTotal}`,
+      subject: `🎉 New Bloucowlait order from ${customerName} — ${orderNumber}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background: linear-gradient(135deg, #bae6fd, #dbeafe); padding: 24px; border-radius: 16px; margin-bottom: 20px;">
             <h1 style="color: #0c4a6e; margin: 0;">New order! 🎉</h1>
+            <p style="color: #0369a1; font-size: 20px; margin: 8px 0 0; font-family: monospace; font-weight: bold;">${orderNumber}</p>
           </div>
+          <p style="color: #374151; font-size: 16px;"><strong>Order number:</strong> <span style="font-family: monospace; font-weight: bold; font-size: 18px; color: #0c4a6e;">${orderNumber}</span></p>
           <p style="color: #374151; font-size: 16px;"><strong>Customer:</strong> ${customerName}</p>
           <p style="color: #374151; font-size: 16px;"><strong>Email:</strong> ${customerEmail}</p>
           <p style="color: #374151; font-size: 16px;"><strong>Total:</strong> US$${amountTotal}</p>
