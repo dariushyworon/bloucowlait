@@ -28,8 +28,15 @@ export async function POST(req: NextRequest) {
     mode: 'payment',
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
-    // Collect email for receipt
+    // Always create a customer so Stripe can send receipt email
     customer_creation: 'always',
+    // Explicit receipt email sent to customer
+    payment_intent_data: {
+      metadata: {
+        shop: 'bloucowlait',
+        seller_email: process.env.SELLER_EMAIL ?? '',
+      },
+    },
     // Allow shipping worldwide
     shipping_address_collection: {
       allowed_countries: [
