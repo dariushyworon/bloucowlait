@@ -1,19 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
-import { useCart } from '@/lib/cart';
+import { useEffect } from 'react';
 
 export default function SuccessPage() {
-  const { clearCart } = useCart();
-  const cleared = useRef(false);
-
   useEffect(() => {
-    if (!cleared.current) {
-      cleared.current = true;
-      clearCart();
-    }
-  }, [clearCart]);
+    // Clear cart directly from localStorage — most reliable after Stripe redirect
+    localStorage.removeItem('bloucowlait-cart');
+    // Force a storage event so the cart context re-syncs
+    window.dispatchEvent(new Event('storage'));
+  }, []);
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-20 text-center">

@@ -28,6 +28,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const stored = localStorage.getItem('bloucowlait-cart');
     if (stored) setItems(JSON.parse(stored));
+
+    // Listen for storage events (e.g. success page clearing the cart)
+    function onStorage() {
+      const updated = localStorage.getItem('bloucowlait-cart');
+      setItems(updated ? JSON.parse(updated) : []);
+    }
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
   useEffect(() => {
