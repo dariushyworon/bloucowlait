@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     const address = shippingAddr
       ? `${shippingAddr.line1}, ${shippingAddr.city}, ${shippingAddr.country}`
       : 'Not provided';
+    const orderNumber = session.metadata?.order_number ?? 'BCL-??????';
 
     const sellerEmail = process.env.SELLER_EMAIL ?? 'darius@bloucowlait.com';
     const fromEmail = process.env.FROM_EMAIL ?? 'orders@bloucowlait.com';

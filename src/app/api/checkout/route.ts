@@ -3,12 +3,20 @@ import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+function generateOrderNumber(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const random = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  return `BCL-${random}`;
+}
+
 export async function POST(req: NextRequest) {
   const { items } = await req.json();
 
   if (!items || items.length === 0) {
     return NextResponse.json({ error: 'No items' }, { status: 400 });
   }
+
+  const orderNumber = generateOrderNumber();
 
   const lineItems = items.map((item: { name: string; price: number; quantity: number; emoji: string }) => ({
     price_data: {
@@ -26,18 +34,19 @@ export async function POST(req: NextRequest) {
     payment_method_types: ['card'],
     line_items: lineItems,
     mode: 'payment',
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?order=${orderNumber}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
-    // Always create a customer so Stripe can send receipt email
     customer_creation: 'always',
-    // Explicit receipt email sent to customer
+    metadata: {
+      order_number: orderNumber,
+      shop: 'bloucowlait',
+    },
     payment_intent_data: {
       metadata: {
+        order_number: orderNumber,
         shop: 'bloucowlait',
-        seller_email: process.env.SELLER_EMAIL ?? '',
       },
     },
-    // Allow shipping worldwide
     shipping_address_collection: {
       allowed_countries: [
         'US', 'CA', 'GB', 'AU', 'FR', 'IL', 'ZA', 'DE', 'NL', 'BE',
