@@ -28,8 +28,16 @@ export async function POST(req: NextRequest) {
     mode: 'payment',
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
+    // Collect email for receipt
+    customer_creation: 'always',
+    // Allow shipping worldwide
     shipping_address_collection: {
-      allowed_countries: ['US', 'CA', 'GB', 'AU', 'FR', 'IL', 'ZA'],
+      allowed_countries: [
+        'US', 'CA', 'GB', 'AU', 'FR', 'IL', 'ZA', 'DE', 'NL', 'BE',
+        'IT', 'ES', 'PT', 'CH', 'AT', 'SE', 'NO', 'DK', 'FI', 'NZ',
+        'SG', 'JP', 'HK', 'BR', 'MX', 'AR', 'CL', 'IN', 'IE', 'PL',
+        'CZ', 'HU', 'RO', 'GR', 'TR', 'AE', 'SA', 'KE', 'NG', 'GH',
+      ],
     },
     custom_text: {
       submit: {
