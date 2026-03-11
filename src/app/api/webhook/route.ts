@@ -31,6 +31,20 @@ export async function POST(req: NextRequest) {
       : 'Not provided';
     const orderNumber = session.metadata?.order_number ?? 'BCL-??????';
 
+    // Fetch line items from Stripe
+    const lineItemsResult = await stripe.checkout.sessions.listLineItems(session.id, { limit: 50 });
+    const itemsHtml = lineItemsResult.data
+      .map((item) => `
+        <tr>
+          <td style="padding: 8px 0; color: #374151; border-bottom: 1px solid #e5e7eb;">
+            ${item.description} × ${item.quantity}
+          </td>
+          <td style="padding: 8px 0; color: #374151; border-bottom: 1px solid #e5e7eb; text-align: right; white-space: nowrap;">
+            US$${((item.amount_total ?? 0) / 100).toFixed(2)}
+          </td>
+        </tr>`)
+      .join('');
+
     const sellerEmail = process.env.SELLER_EMAIL ?? 'darius@bloucowlait.com';
     const fromEmail = process.env.FROM_EMAIL ?? 'orders@bloucowlait.com';
 
@@ -51,8 +65,14 @@ export async function POST(req: NextRequest) {
             <div style="background: #f0f9ff; border-radius: 12px; padding: 20px; margin: 20px 0;">
               <h2 style="color: #0c4a6e; margin-top: 0;">Order summary</h2>
               <p style="color: #374151;"><strong>Order number:</strong> <span style="font-family: monospace; font-weight: bold; font-size: 18px; color: #0c4a6e;">${orderNumber}</span></p>
-              <p style="color: #374151;"><strong>Total:</strong> US$${amountTotal}</p>
-              <p style="color: #374151;"><strong>Shipping to:</strong> ${address}</p>
+              <table style="width: 100%; border-collapse: collapse; margin: 12px 0;">
+                ${itemsHtml}
+                <tr>
+                  <td style="padding: 10px 0; color: #0c4a6e; font-weight: bold;">Total</td>
+                  <td style="padding: 10px 0; color: #0c4a6e; font-weight: bold; text-align: right;">US$${amountTotal}</td>
+                </tr>
+              </table>
+              <p style="color: #374151; margin: 0;"><strong>Shipping to:</strong> ${address}</p>
             </div>
             <p style="color: #374151; font-size: 16px;">We&apos;ll be in touch when your order is on its way! Each item comes with a personal note from us 💌</p>
             <div style="text-align: center; margin-top: 32px;">
@@ -78,8 +98,14 @@ export async function POST(req: NextRequest) {
           <p style="color: #374151; font-size: 16px;"><strong>Order number:</strong> <span style="font-family: monospace; font-weight: bold; font-size: 18px; color: #0c4a6e;">${orderNumber}</span></p>
           <p style="color: #374151; font-size: 16px;"><strong>Customer:</strong> ${customerName}</p>
           <p style="color: #374151; font-size: 16px;"><strong>Email:</strong> ${customerEmail}</p>
-          <p style="color: #374151; font-size: 16px;"><strong>Total:</strong> US$${amountTotal}</p>
           <p style="color: #374151; font-size: 16px;"><strong>Ship to:</strong> ${address}</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+            ${itemsHtml}
+            <tr>
+              <td style="padding: 10px 0; color: #0c4a6e; font-weight: bold; font-size: 16px;">Total</td>
+              <td style="padding: 10px 0; color: #0c4a6e; font-weight: bold; font-size: 16px; text-align: right;">US$${amountTotal}</td>
+            </tr>
+          </table>
           <p style="color: #374151; font-size: 16px; margin-top: 20px;">Log into <a href="https://dashboard.stripe.com" style="color: #0ea5e9;">Stripe</a> to see full order details.</p>
         </div>
       `,
