@@ -1,14 +1,23 @@
-import { getProduct, formatPrice, products } from '@/lib/products';
+import { supabase } from '@/lib/supabase';
+import { Product, formatPrice } from '@/lib/products';
 import { notFound } from 'next/navigation';
 import AddToCartButton from '@/components/AddToCartButton';
 
-export function generateStaticParams() {
-  return products.map((p) => ({ id: p.id }));
+export const dynamic = 'force-dynamic';
+
+async function getProduct(id: string): Promise<Product | null> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .single();
+  if (error || !data) return null;
+  return data as Product;
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = getProduct(id);
+  const product = await getProduct(id);
   if (!product) notFound();
 
   return (

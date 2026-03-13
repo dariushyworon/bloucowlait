@@ -1,7 +1,17 @@
-import { products } from '@/lib/products';
+import { supabase } from '@/lib/supabase';
+import { Product, formatPrice } from '@/lib/products';
 import ProductCard from '@/components/ProductCard';
 
-export default function ShopPage() {
+export const dynamic = 'force-dynamic';
+
+async function getProducts(): Promise<Product[]> {
+  const { data, error } = await supabase.from('products').select('*').order('id');
+  if (error || !data) return [];
+  return data as Product[];
+}
+
+export default async function ShopPage() {
+  const products = await getProducts();
   const crafts = products.filter((p) => p.category === 'craft');
   const accessories = products.filter((p) => p.category === 'accessory');
   const clothing = products.filter((p) => p.category === 'clothing');
@@ -38,6 +48,10 @@ export default function ShopPage() {
             {clothing.map((p) => <ProductCard key={p.id} product={p} />)}
           </div>
         </section>
+      )}
+
+      {products.length === 0 && (
+        <p className="text-center text-gray-400 py-20">No products yet — check back soon!</p>
       )}
     </div>
   );

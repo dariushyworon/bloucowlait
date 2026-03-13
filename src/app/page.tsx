@@ -1,10 +1,19 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { products } from '@/lib/products';
+import { supabase } from '@/lib/supabase';
+import { Product } from '@/lib/products';
 import ProductCard from '@/components/ProductCard';
 
-export default function Home() {
-  const featured = products.slice(0, 4);
+export const dynamic = 'force-dynamic';
+
+async function getFeatured(): Promise<Product[]> {
+  const { data, error } = await supabase.from('products').select('*').order('id').limit(4);
+  if (error || !data) return [];
+  return data as Product[];
+}
+
+export default async function Home() {
+  const featured = await getFeatured();
 
   return (
     <div>
