@@ -1,11 +1,34 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+// Lazy clients — created on first use so build-time missing vars don't crash
+let _supabase: SupabaseClient | null = null;
+let _supabaseAdmin: SupabaseClient | null = null;
 
-// Public client — used for reading products on the shop
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
+  return _supabase;
+}
 
-// Admin client — used in API routes for write operations
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+export function getSupabaseAdmin(): SupabaseClient {
+  if (!_supabaseAdmin) {
+    _supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabaseAdmin;
+}
+
+// Convenience named exports matching existing usage
+export const supabase = new Proxy({} as SupabaseClient, {
+  get: (_, prop) => getSupabase()[prop as keyof SupabaseClient],
+});
+
+export const supabaseAdmin = new Proxy({} as SupabaseClient, {
+  get: (_, prop) => getSupabaseAdmin()[prop as keyof SupabaseClient],
+});
