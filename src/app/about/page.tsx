@@ -12,6 +12,22 @@ export default function AboutPage() {
       </div>
 
       <div className="bg-white rounded-3xl shadow-xl p-8 border-2 border-sky-100 mb-8">
+        <h2 className="text-2xl font-black text-sky-500 mb-4">Hi! 👋</h2>
+        <p className="text-gray-600 leading-relaxed text-lg mb-4">
+          We are the inventors of <strong className="text-blue-900">Bloucowlait</strong> — and we have been best
+          friends since the day we were born. We started our little company when we were just six years old,
+          and we have always dreamed of having our very own website. Well, now we do! 🎉
+        </p>
+        <p className="text-gray-600 leading-relaxed text-lg mb-4">
+          We are so happy you found us. Every single product on here has been made by our own hands,
+          with real time and real effort — because we care about every person who gets something from us.
+        </p>
+        <p className="text-gray-600 leading-relaxed text-lg">
+          We really hope you love what we make. Thanks for visiting — bye! 🐄💛
+        </p>
+      </div>
+
+      <div className="bg-white rounded-3xl shadow-xl p-8 border-2 border-sky-100 mb-8">
         <h2 className="text-2xl font-black text-sky-500 mb-4">How did we get our name?</h2>
         <p className="text-gray-600 leading-relaxed text-lg">
           Our name is a mix of all the things we love most!
