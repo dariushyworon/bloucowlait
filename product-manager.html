@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bloucowlait Product Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #fdf6ee; color: #333; padding: 30px; }
+    h1 { font-size: 1.6rem; margin-bottom: 6px; color: #5a3e2b; }
+    p.sub { color: #888; margin-bottom: 24px; font-size: 0.9rem; }
+
+    /* Publish bar */
+    .publish-bar {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      background: white; border-radius: 10px; padding: 14px 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 28px;
+    }
+    .pick-btn {
+      padding: 9px 18px; background: #5a3e2b; color: white;
+      border: none; border-radius: 7px; font-size: 0.9rem; cursor: pointer;
+    }
+    .pick-btn:hover { background: #7a5540; }
+    .publish-btn {
+      padding: 9px 22px; background: #2e7d32; color: white;
+      border: none; border-radius: 7px; font-size: 0.9rem; cursor: pointer;
+    }
+    .publish-btn:hover { background: #388e3c; }
+    .publish-btn:disabled { background: #aaa; cursor: not-allowed; }
+    .file-status { font-size: 0.85rem; color: #555; }
+    .file-status.linked { color: #2e7d32; font-weight: 600; }
+    .publish-success {
+      font-size: 0.85rem; font-weight: 600; color: #2e7d32;
+      display: none; animation: fadein 0.3s;
+    }
+    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+    .no-api-warning {
+      font-size: 0.8rem; color: #b45309; background: #fffbeb;
+      border: 1px solid #fcd34d; border-radius: 6px; padding: 8px 12px;
+    }
+
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    thead { background: #5a3e2b; color: white; }
+    th, td { padding: 10px 12px; text-align: left; font-size: 0.88rem; vertical-align: middle; }
+    tbody tr.product-row { border-bottom: 1px solid #f0e8df; transition: background 0.15s; }
+    tbody tr.product-row:hover { background: #fdf0e5; }
+
+    .badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+    .badge.accessory { background: #e0f0ff; color: #1a6abf; }
+    .badge.craft { background: #e8f5e9; color: #2e7d32; }
+    .badge.clothing { background: #f3e5f5; color: #7b1fa2; }
+
+    .action-cell { white-space: nowrap; }
+    .edit-btn { border: none; border-radius: 6px; padding: 4px 9px; cursor: pointer; font-size: 0.85rem; background: #e8f0ff; color: #1a4abf; }
+    .edit-btn:hover { background: #cfe0ff; }
+
+    tr.edit-row td { padding: 0; }
+    .edit-panel {
+      background: #f9f4ef; border-top: 2px solid #c8a882; padding: 16px 20px;
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;
+    }
+    .edit-panel label { font-size: 0.78rem; font-weight: 700; color: #7a5540; display: block; margin-bottom: 4px; }
+    .edit-panel input, .edit-panel select, .edit-panel textarea {
+      width: 100%; padding: 7px 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.88rem; background: white;
+    }
+    .edit-panel textarea { height: 70px; resize: vertical; }
+    .edit-panel .full { grid-column: 1 / -1; }
+    .edit-actions { grid-column: 1 / -1; display: flex; gap: 10px; padding-top: 4px; }
+    .save-btn { padding: 8px 22px; background: #2e7d32; color: white; border: none; border-radius: 7px; font-size: 0.9rem; cursor: pointer; }
+    .save-btn:hover { background: #388e3c; }
+    .cancel-btn { padding: 8px 18px; background: #eee; color: #555; border: none; border-radius: 7px; font-size: 0.9rem; cursor: pointer; }
+    .cancel-btn:hover { background: #ddd; }
+
+    h2 { margin: 36px 0 14px; color: #5a3e2b; font-size: 1.2rem; }
+    .add-form { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .add-form label { font-size: 0.82rem; font-weight: 600; color: #666; display: block; margin-bottom: 4px; }
+    .add-form input, .add-form select, .add-form textarea { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+    .add-form textarea { resize: vertical; height: 70px; }
+    .add-form .full { grid-column: 1 / -1; }
+    .add-form button { grid-column: 1 / -1; padding: 10px; background: #5a3e2b; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+    .add-form button:hover { background: #7a5540; }
+  </style>
+</head>
+<body>
+
+<h1>🐄 Bloucowlait Product Manager</h1>
+<p class="sub">Click ✏️ Edit to change any product. Add new products below. Then publish directly to your products.ts file.</p>
+
+<!-- PUBLISH BAR -->
+<div class="publish-bar">
+  <div id="api-warning" class="no-api-warning" style="display:none">
+    ⚠️ Your browser doesn't support direct file saving. Use Chrome or Edge.
+  </div>
+  <button class="pick-btn" onclick="pickFile()">📁 Link to products.ts</button>
+  <span class="file-status" id="file-status">No file linked yet</span>
+  <button class="publish-btn" id="publish-btn" disabled onclick="publishToFile()">🚀 Publish to products.ts</button>
+  <span class="publish-success" id="publish-success">✅ Published successfully!</span>
+</div>
+
+<table id="product-table">
+  <thead>
+    <tr>
+      <th>Edit</th>
+      <th>Emoji</th>
+      <th>Name</th>
+      <th>Price</th>
+      <th>Category</th>
+      <th>Stock</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody id="product-body"></tbody>
+</table>
+
+<h2>➕ Add New Product</h2>
+<div class="add-form">
+  <div>
+    <label>Name *</label>
+    <input id="new-name" type="text" placeholder="e.g. Cow Print Notebook" />
+  </div>
+  <div>
+    <label>Emoji *</label>
+    <input id="new-emoji" type="text" placeholder="e.g. 📓" maxlength="4" />
+  </div>
+  <div class="full">
+    <label>Description *</label>
+    <textarea id="new-desc" placeholder="Describe the product..."></textarea>
+  </div>
+  <div>
+    <label>Price (e.g. 5.00) *</label>
+    <input id="new-price" type="number" step="0.01" min="0" placeholder="5.00" />
+  </div>
+  <div>
+    <label>Stock *</label>
+    <input id="new-stock" type="number" min="0" placeholder="100" />
+  </div>
+  <div>
+    <label>Category *</label>
+    <select id="new-category">
+      <option value="accessory">Accessory</option>
+      <option value="craft">Craft</option>
+      <option value="clothing">Clothing</option>
+    </select>
+  </div>
+  <div>
+    <label>Image path (optional)</label>
+    <input id="new-image" type="text" placeholder="/products/myproduct.jpg" />
+  </div>
+  <button onclick="addProduct()">Add Product to List</button>
+</div>
+
+<script>
+  let products = [
+    { id: 'p1', name: 'Bracelet', description: 'Handmade with love by Bea and Louisa! Bright rainbow colours, adjustable size. Perfect for best friends. Choose your colours.', price: 350, image: '/products/bracelet.jpg', category: 'accessory', emoji: '🌈', stock: 100 },
+    { id: 'p2', name: 'Painted Rock Pet', description: 'Each rock is hand-painted by Louisa and Bea with a unique animal face. No two are the same!', price: 200, image: '/products/rock.jpg', category: 'craft', emoji: '🪨', stock: 100 },
+    { id: 'p4', name: 'Original Watercolour Card', description: 'A one-of-a-kind watercolour painting by Louisa and Bea, perfect for framing or gifting. You can customise it with words.', price: 900, image: '/products/watercolour.jpg', category: 'craft', emoji: '🎨', stock: 100 },
+    { id: 'p5', name: 'Tie-Dye Bag', description: 'Hand tie-dyed bag. Great for the beach, shopping, or just looking cool!', price: 1985, image: '/products/tote.jpg', category: 'clothing', emoji: '🎒', stock: 100 },
+    { id: 'p7', name: 'Set of Keychains', description: 'Colourful beaded keychains handmade by Bea and Louisa. Choose your favourite colours at checkout. Includes 1 crochet animal, 4 surprises and 1 braided keychain.', price: 2500, image: '/products/keychain.jpg', category: 'accessory', emoji: '🔑', stock: 100 },
+    { id: 'p9', name: 'Custom Name Painting', description: 'A handmade name tag — you choose exactly what is written on it!', price: 700, image: '/products/product9.jpg', category: 'craft', emoji: '🏷️', stock: 100 },
+    { id: 'p10', name: 'Crochet Blanket', description: 'A cosy handmade crochet blanket to keep you warm. Made by Bea and Louisa.', price: 5000, image: '/products/product10.jpg', category: 'craft', emoji: '🧶', stock: 100 },
+  ];
+
+  let editingId = null;
+  let nextId = 11;
+  let fileHandle = null;
+
+  // Check File System Access API support
+  if (!window.showOpenFilePicker) {
+    document.getElementById('api-warning').style.display = 'block';
+    document.querySelector('.pick-btn').disabled = true;
+    document.querySelector('.pick-btn').title = 'Not supported in this browser';
+  }
+
+  async function pickFile() {
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        types: [{ description: 'TypeScript files', accept: { 'text/plain': ['.ts'] } }],
+        multiple: false,
+      });
+      // Verify write permission
+      const perm = await handle.requestPermission({ mode: 'readwrite' });
+      if (perm !== 'granted') { alert('Write permission denied.'); return; }
+      fileHandle = handle;
+      document.getElementById('file-status').textContent = '🔗 Linked: ' + handle.name;
+      document.getElementById('file-status').className = 'file-status linked';
+      document.getElementById('publish-btn').disabled = false;
+    } catch (e) {
+      if (e.name !== 'AbortError') alert('Could not open file: ' + e.message);
+    }
+  }
+
+  function buildCode() {
+    const lines = products.map((p) => `  {
+    id: '${p.id}',
+    name: '${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}',
+    description: '${p.description.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}',
+    price: ${p.price},
+    image: '${p.image}',
+    category: '${p.category}',
+    emoji: '${p.emoji}',
+    stock: ${p.stock},
+  }`).join(',\n');
+
+    return `export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number; // in cents
+  image: string;
+  category: 'craft' | 'clothing' | 'accessory';
+  emoji: string;
+  stock: number;
+}
+
+export const products: Product[] = [
+${lines}
+];
+
+export function getProduct(id: string): Product | undefined {
+  return products.find((p) => p.id === id);
+}
+
+export function formatPrice(cents: number): string {
+  return \`$\${(cents / 100).toFixed(2)}\`;
+}
+`;
+  }
+
+  async function publishToFile() {
+    if (!fileHandle) return;
+    try {
+      const writable = await fileHandle.createWritable();
+      await writable.write(buildCode());
+      await writable.close();
+      const el = document.getElementById('publish-success');
+      el.style.display = 'inline';
+      setTimeout(() => el.style.display = 'none', 3000);
+    } catch (e) {
+      alert('Failed to write file: ' + e.message);
+    }
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('product-body');
+    tbody.innerHTML = '';
+    products.forEach((p) => {
+      const tr = document.createElement('tr');
+      tr.classList.add('product-row');
+      tr.innerHTML = `
+        <td class="action-cell">
+          <button class="edit-btn" onclick="toggleEdit('${p.id}', event)">✏️ Edit</button>
+        </td>
+        <td>${p.emoji}</td>
+        <td><strong>${p.name}</strong></td>
+        <td>$${(p.price / 100).toFixed(2)}</td>
+        <td><span class="badge ${p.category}">${p.category}</span></td>
+        <td>${p.stock}</td>
+        <td>${p.description}</td>
+      `;
+      tbody.appendChild(tr);
+
+      if (editingId === p.id) {
+        const editTr = document.createElement('tr');
+        editTr.classList.add('edit-row');
+        editTr.innerHTML = `
+          <td colspan="7">
+            <div class="edit-panel">
+              <div>
+                <label>Name</label>
+                <input id="edit-name" type="text" value="${escHtml(p.name)}" />
+              </div>
+              <div>
+                <label>Emoji</label>
+                <input id="edit-emoji" type="text" value="${escHtml(p.emoji)}" maxlength="4" />
+              </div>
+              <div>
+                <label>Price ($)</label>
+                <input id="edit-price" type="number" step="0.01" min="0" value="${(p.price / 100).toFixed(2)}" />
+              </div>
+              <div>
+                <label>Category</label>
+                <select id="edit-category">
+                  <option value="accessory" ${p.category==='accessory'?'selected':''}>Accessory</option>
+                  <option value="craft" ${p.category==='craft'?'selected':''}>Craft</option>
+                  <option value="clothing" ${p.category==='clothing'?'selected':''}>Clothing</option>
+                </select>
+              </div>
+              <div>
+                <label>Stock</label>
+                <input id="edit-stock" type="number" min="0" value="${p.stock}" />
+              </div>
+              <div class="full">
+                <label>Description</label>
+                <textarea id="edit-desc">${escHtml(p.description)}</textarea>
+              </div>
+              <div class="edit-actions">
+                <button class="save-btn" onclick="saveEdit('${p.id}')">💾 Save Changes</button>
+                <button class="cancel-btn" onclick="cancelEdit()">Cancel</button>
+              </div>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(editTr);
+      }
+    });
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function toggleEdit(id, e) {
+    e.stopPropagation();
+    editingId = (editingId === id) ? null : id;
+    renderTable();
+    if (editingId) {
+      setTimeout(() => {
+        const rows = document.querySelectorAll('.edit-row');
+        if (rows.length) rows[rows.length-1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 50);
+    }
+  }
+
+  function saveEdit(id) {
+    const idx = products.findIndex(p => p.id === id);
+    if (idx === -1) return;
+    const name = document.getElementById('edit-name').value.trim();
+    const emoji = document.getElementById('edit-emoji').value.trim();
+    const desc = document.getElementById('edit-desc').value.trim();
+    const price = parseFloat(document.getElementById('edit-price').value);
+    const stock = parseInt(document.getElementById('edit-stock').value);
+    const category = document.getElementById('edit-category').value;
+    if (!name || !emoji || !desc || isNaN(price) || isNaN(stock)) { alert('Please fill in all fields.'); return; }
+    products[idx] = { ...products[idx], name, emoji, description: desc, price: Math.round(price * 100), stock, category };
+    editingId = null;
+    renderTable();
+  }
+
+  function cancelEdit() { editingId = null; renderTable(); }
+
+  function addProduct() {
+    const name = document.getElementById('new-name').value.trim();
+    const emoji = document.getElementById('new-emoji').value.trim();
+    const desc = document.getElementById('new-desc').value.trim();
+    const price = parseFloat(document.getElementById('new-price').value);
+    const stock = parseInt(document.getElementById('new-stock').value);
+    const category = document.getElementById('new-category').value;
+    const image = document.getElementById('new-image').value.trim() || `/products/product${nextId}.jpg`;
+    if (!name || !emoji || !desc || isNaN(price) || isNaN(stock)) { alert('Please fill in all required fields.'); return; }
+    products.push({ id: `p${nextId}`, name, description: desc, price: Math.round(price * 100), image, category, emoji, stock });
+    nextId++;
+    document.getElementById('new-name').value = '';
+    document.getElementById('new-emoji').value = '';
+    document.getElementById('new-desc').value = '';
+    document.getElementById('new-price').value = '';
+    document.getElementById('new-stock').value = '';
+    document.getElementById('new-image').value = '';
+    renderTable();
+  }
+
+  renderTable();
+</script>
+</body>
+</html>
