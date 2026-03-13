@@ -40,6 +40,18 @@ export default function AboutPage() {
       </div>
 
 
+      <div className="flex justify-center mb-8">
+        <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-sky-100" style={{ maxWidth: 420 }}>
+          <Image
+            src="/girls2.jpg"
+            alt="Bea and Louisa"
+            width={420}
+            height={560}
+            className="w-full h-auto"
+          />
+        </div>
+      </div>
+
       <div className="bg-gradient-to-r from-sky-400 via-blue-500 to-blue-900 rounded-3xl p-8 text-center">
         <p className="text-2xl font-black text-white drop-shadow mb-2">
           Every item is made with love, just for you 💛
