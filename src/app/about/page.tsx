@@ -39,24 +39,6 @@ export default function AboutPage() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-sky-100 to-blue-100 rounded-3xl p-8 text-center">
-          <div className="text-6xl mb-4">🎨</div>
-          <h3 className="text-2xl font-black text-blue-900 mb-2">Louisa</h3>
-          <p className="text-gray-600">
-            Louisa loves painting and creating art. She makes all our hand-painted items,
-            from rocks to watercolour cards to custom name paintings!
-          </p>
-        </div>
-        <div className="bg-gradient-to-br from-blue-100 to-sky-100 rounded-3xl p-8 text-center">
-          <div className="text-6xl mb-4">✨</div>
-          <h3 className="text-2xl font-black text-sky-500 mb-2">Bea</h3>
-          <p className="text-gray-600">
-            Bea loves making accessories and jewellery. She handcrafts our bracelets,
-            keychains, scrunchies, and anything sparkly!
-          </p>
-        </div>
-      </div>
 
       <div className="bg-gradient-to-r from-sky-400 via-blue-500 to-blue-900 rounded-3xl p-8 text-center">
         <p className="text-2xl font-black text-white drop-shadow mb-2">
